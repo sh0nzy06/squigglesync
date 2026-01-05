@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { routeGroup } from '../utils/router.util';
+import { createRouter, routeGroup } from '../utils/router.util';
 import { logMiddleware } from '../middleware/example.middleware';
 import { sequenceRouter } from './sequence.router';
 import { eventsRouter } from './events.router';
 
-const router = Router();
+const router = createRouter();
 
 // Route group with middleware
 // All routes in this group will have logMiddleware applied
