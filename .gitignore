@@ -1,8 +1,11 @@
 # Dependencies
 node_modules/
 **/node_modules/
-# Only ignore root package-lock.json, keep backend/frontend ones
-/package-lock.json
+# npm lock files (using pnpm instead)
+package-lock.json
+**/package-lock.json
+# pnpm lock files should be committed
+!pnpm-lock.yaml
 
 # Build outputs
 dist/
