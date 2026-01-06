@@ -3,6 +3,7 @@ import { createRouter, routeGroup } from '../utils/router.util';
 import { logMiddleware } from '../middleware/example.middleware';
 import { sequenceManagerRouter } from './sequence-manager.router';
 import { eventStoreRouter } from './events-store.router';
+import { conflictResolverRouter } from './conflict-resolver.router';
 
 const router = createRouter();
 
@@ -16,6 +17,7 @@ const apiRoutes = routeGroup(
     // Mount routers
     router.use('/sequence', sequenceManagerRouter);
     router.use('/events', eventStoreRouter);
+    router.use('/conflict-resolver', conflictResolverRouter);
   }
 );
 
