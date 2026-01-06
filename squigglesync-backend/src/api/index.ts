@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createRouter, routeGroup } from '../utils/router.util';
-import { logMiddleware } from '../middleware/example.middleware';
+import { logMiddleware } from '../middleware/log.middleware';
+import { validateEventMiddleware } from '../middleware/validation.middleware';
 import { sequenceManagerRouter } from './sequence-manager.router';
 import { eventStoreRouter } from './events-store.router';
 import { conflictResolverRouter } from './conflict-resolver.router';
@@ -8,10 +9,11 @@ import { conflictResolverRouter } from './conflict-resolver.router';
 const router = createRouter();
 
 // Route group with middleware
-// All routes in this group will have logMiddleware applied
+// All routes in this group will have logMiddleware and validationMiddleware applied
+// Validation middleware only affects POST/PUT/PATCH routes with event in body
 const apiRoutes = routeGroup(
   {
-    middleware: [logMiddleware],
+    middleware: [logMiddleware, validateEventMiddleware],
   },
   (router) => {
     // Mount routers

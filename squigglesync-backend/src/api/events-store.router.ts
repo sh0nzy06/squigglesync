@@ -44,16 +44,6 @@ const eventsStoreService = new EventStoreService(sequenceManagerService);
 router.post('/', (req, res) => {
     const { roomId, event } = req.body;
 
-    if (!roomId || !event) {
-        return res.status(400).json({ error: 'Room ID and event are required' });
-    }
-
-    if (!event.type || !event.userId) {
-        return res.status(400).json({ 
-            error: 'Event type and user ID are required' 
-        });
-    }
-
     try {
         const processedEvent = eventsStoreService.addEvent(roomId, event as WhiteboardEvent);
 
