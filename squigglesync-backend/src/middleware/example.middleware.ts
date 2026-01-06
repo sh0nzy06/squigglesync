@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from 'express';
  * You can create more middleware files here for auth, validation, etc.
  */
 export function logMiddleware(req: Request, res: Response, next: NextFunction): void {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 }
 

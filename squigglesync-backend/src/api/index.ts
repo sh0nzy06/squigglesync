@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { createRouter, routeGroup } from '../utils/router.util';
 import { logMiddleware } from '../middleware/example.middleware';
-import { sequenceRouter } from './sequence.router';
-import { eventsRouter } from './events.router';
+import { sequenceManagerRouter } from './sequence-manager.router';
+import { eventStoreRouter } from './events-store.router';
 
 const router = createRouter();
 
@@ -14,8 +14,8 @@ const apiRoutes = routeGroup(
   },
   (router) => {
     // Mount routers
-    router.use('/sequence', sequenceRouter);
-    router.use('/events', eventsRouter);
+    router.use('/sequence', sequenceManagerRouter);
+    router.use('/events', eventStoreRouter);
   }
 );
 

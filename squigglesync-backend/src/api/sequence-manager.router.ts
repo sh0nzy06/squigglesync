@@ -65,4 +65,4 @@ router.get('/reset/:roomId', (req, res) => {
     res.json({ message: 'Sequence manager reset for room ' + roomId });
 })
 
-export { router as sequenceRouter };
+export { router as sequenceManagerRouter };
