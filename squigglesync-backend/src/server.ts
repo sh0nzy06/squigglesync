@@ -1,6 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
 import apiRouter from './api';
+import { RoomStateService } from './services/room-state.service';
+import { WebSocketRoomsService } from './services/websocket-rooms.service';
+import { WebSocketHandler } from './handlers/websocket.handler';
 
 dotenv.config();
 
@@ -19,7 +24,23 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api', apiRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`WebSocket API is running on http://localhost:${PORT}/api`);
+// create HTTP server
+const server = createServer(app);
+// create WebSocket server
+const wss = new WebSocketServer({ server });
+
+// create room state service
+const roomStateService = new RoomStateService();
+const websocketRoomsService = new WebSocketRoomsService();
+const websocketHandler = new WebSocketHandler(roomStateService, websocketRoomsService);
+
+// handle WebSocket connections
+wss.on('connection', (socket) => {
+    websocketHandler.handleConnection(socket);
+});
+
+server.listen(PORT, () => {
+    console.log(`🚀 HTTP server running on http://localhost:${PORT}`);
+    console.log(`📡 WebSocket server running on ws://localhost:${PORT}`);
+    console.log(`📋 API endpoints: http://localhost:${PORT}/api`);
 });

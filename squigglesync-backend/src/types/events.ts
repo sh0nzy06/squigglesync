@@ -54,6 +54,6 @@ export type WhiteboardEvent =
 
 export interface ServerMessage {
     type: 'CONNECTED' | 'ROOM_JOINED' | 'ERROR' | 'EVENT';
-    payload: any;
+    payload?: any;
     error?: string;
 }
