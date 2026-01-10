@@ -1,0 +1,113 @@
+// Doodle-style fonts - Professional handwritten look
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;600;700&display=swap');
+
+// Doodle Title - Professional handwritten style
+.doodle-title {
+  font-family: 'Caveat', 'Kalam', cursive, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  // Subtle hand-drawn effect
+  text-shadow: 
+    1px 1px 0 rgba(0, 0, 0, 0.05),
+    0 0 1px rgba(0, 0, 0, 0.1);
+  // Slight rotation for natural look
+  transform: rotate(-0.5deg);
+  display: inline-block;
+}
+
+// Doodle Text - For body text
+.doodle-text {
+  font-family: 'Kalam', 'Caveat', cursive, sans-serif;
+  font-weight: 400;
+}
+
+// Doodle Label - For form labels
+.doodle-label {
+  font-family: 'Kalam', cursive, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+// Smooth transitions
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+// Modern Sidebar Styles
+.sidebar-card {
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Tool Button Styles
+.tool-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover:not(.active) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.active {
+    transform: scale(1.02);
+  }
+}
+
+// Color Preview Swatch
+.color-swatch {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Ensure PrimeNG components work well with Tailwind
+::ng-deep {
+  .p-card {
+    .p-card-body {
+      @apply flex flex-col;
+    }
+  }
+  
+  // Make buttons blend with transparent header
+  .p-button.p-button-text {
+    background: transparent;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+  }
+  
+  // Modernize slider
+  .p-slider {
+    .p-slider-handle {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+      
+      &:focus {
+        box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+  
+  // Color picker styling
+  .p-colorpicker-preview {
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
