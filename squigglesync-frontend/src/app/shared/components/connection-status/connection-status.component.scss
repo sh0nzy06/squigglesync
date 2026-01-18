@@ -1,0 +1,53 @@
+/**
+ * ConnectionStatusComponent Styles
+ * 
+ * Follows UI/UX best practices:
+ * - Clear visual hierarchy
+ * - Accessible color contrast (WCAG AA)
+ * - Responsive design
+ * - Touch-friendly targets (min 44x44px)
+ * - Consistent spacing using relative units
+ */
+
+.connection-status-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.connection-tag {
+  min-height: 2rem; // Touch-friendly target
+  min-width: fit-content;
+  
+  // Ensure sufficient contrast
+  @media (prefers-contrast: high) {
+    border-width: 2px;
+  }
+  
+  // Focus state for accessibility
+  &:focus {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+  
+  // Spinning animation for connecting state
+  .pi-spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .pi-spinner {
+    animation: none !important;
+  }
+}
+

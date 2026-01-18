@@ -1,0 +1,12 @@
+<div class="connection-status-container">
+  <p-tag 
+    [value]="statusText()" 
+    [severity]="severity()"
+    [icon]="icon()"
+    [pTooltip]="tooltipText()"
+    [attr.aria-label]="tooltipText()"
+    [attr.aria-live]="'polite'"
+    class="connection-tag"
+  />
+</div>
+

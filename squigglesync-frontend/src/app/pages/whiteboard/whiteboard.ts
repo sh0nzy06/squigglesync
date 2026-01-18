@@ -14,6 +14,7 @@ import { Badge } from 'primeng/badge';
 import { Tooltip } from 'primeng/tooltip';
 import { Dialog } from 'primeng/dialog';
 import { Toast } from 'primeng/toast';
+import { ProgressSpinner } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 
 // Services & Utils
@@ -45,6 +46,7 @@ type TagIcon = 'pi pi-check-circle' | 'pi pi-times-circle';
     Tooltip,
     Dialog,
     Toast,
+    ProgressSpinner,
     ToolbarComponent
   ],
   templateUrl: './whiteboard.html',
@@ -108,6 +110,7 @@ export class Whiteboard {
   roomLink = signal<string>('');
   linkCopied = signal<boolean>(false);
   sidebarVisible = signal<boolean>(true);
+  isCanvasInitializing = signal<boolean>(true);
 
   // ============================================================================
   // COMPUTED SIGNALS
@@ -163,6 +166,24 @@ export class Whiteboard {
     return Math.max(minSize, Math.min(maxSize, minSize + (size - minEraser) * scaleFactor));
   });
 
+  /**
+   * Computed signal: Overall loading state
+   * 
+   * Returns true if the whiteboard is in a loading state (canvas initializing,
+   * connecting, or joining room).
+   */
+  isLoading = computed<boolean>(() => {
+    return this.isCanvasInitializing() || 
+           this.connectionStore.isConnecting() || 
+           (!this.connectionStore.isConnected() && this.whiteboardStore.currentRoom() !== null);
+  });
+
+  /**
+   * Computed signal: Whether WebSocket is connecting
+   * Exposed for template use
+   */
+  isConnecting = computed<boolean>(() => this.connectionStore.isConnecting());
+
   // ============================================================================
   // SUBSCRIPTIONS
   // ============================================================================
@@ -216,12 +237,15 @@ export class Whiteboard {
         this.roomId.set(id);
         this.whiteboardStore.setRoom(id);
 
-        // Check if user name is stored for this room
+        // Check if user name and ID are stored for this room
         if (typeof window !== 'undefined' && window.localStorage) {
           const storedName = window.localStorage.getItem(`userName_${id}`);
-          if (storedName) {
+          const storedUserId = window.localStorage.getItem(`userId_${id}`);
+          
+          if (storedName && storedUserId) {
+            // Restore user from localStorage
             this.userName.set(storedName);
-            // TODO Phase 5: Set user via UserStore
+            this.userStore.setUser(storedUserId, storedName);
             this.isConnected.set(true);
           } else {
             this.showNameModal.set(true);
@@ -400,6 +424,7 @@ export class Whiteboard {
     const canvasElement = this.canvasRef()?.nativeElement;
     if (!canvasElement) {
       console.error('Canvas element not found');
+      this.isCanvasInitializing.set(false);
       return;
     }
 
@@ -411,6 +436,9 @@ export class Whiteboard {
     if (events.length > 0) {
       this.canvasService.renderAllEvents(events);
     }
+
+    // Mark canvas as initialized
+    this.isCanvasInitializing.set(false);
   }
 
   /**
@@ -856,9 +884,10 @@ export class Whiteboard {
     this.userStore.setUser(userId, name);
     this.whiteboardStore.setRoom(roomId);
   
-    // Store user name in localStorage
+    // Store user name and ID in localStorage for session restoration
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem(`userName_${roomId}`, name);
+      window.localStorage.setItem(`userId_${roomId}`, userId);
     }
   
     // Generate room link

@@ -1,0 +1,101 @@
+<div class="room-selector-container">
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <p-message 
+      severity="error" 
+      [text]="errorMessage()!" 
+      [closable]="true"
+      (onClose)="errorMessage.set(null)"
+      class="mb-4"
+      aria-live="polite"
+    />
+  }
+
+  <!-- Success Message -->
+  @if (successMessage()) {
+    <p-message 
+      severity="success" 
+      [text]="successMessage()!" 
+      [closable]="true"
+      (onClose)="successMessage.set(null)"
+      class="mb-4"
+      aria-live="polite"
+    />
+  }
+
+  <!-- Room ID Input Group -->
+  <div class="room-input-section">
+    <label 
+      for="room-id-input" 
+      class="room-label"
+    >
+      Room ID
+    </label>
+    
+    <p-inputGroup class="w-full">
+      <input
+        id="room-id-input"
+        type="text"
+        pInputText
+        [value]="roomIdInput()"
+        (input)="onRoomIdChange($any($event.target).value)"
+        (keydown.enter)="onJoinRoom()"
+        placeholder="Enter room ID or create a new one"
+        [disabled]="isLoading()"
+        [attr.aria-invalid]="!isValidRoomId() && roomIdInput().length > 0"
+        [attr.aria-describedby]="errorMessage() ? 'room-error' : undefined"
+        class="room-input"
+        autocomplete="off"
+      />
+      <p-inputGroupAddon>
+        <p-button
+          icon="pi pi-copy"
+          [text]="true"
+          severity="secondary"
+          (onClick)="copyRoomLink()"
+          [disabled]="!roomIdInput().trim() || isLoading()"
+          pTooltip="Copy room link"
+          aria-label="Copy room link to clipboard"
+        />
+      </p-inputGroupAddon>
+    </p-inputGroup>
+
+    @if (!isValidRoomId() && roomIdInput().length > 0) {
+      <small 
+        id="room-error"
+        class="error-hint"
+        aria-live="polite"
+      >
+        Room ID must be at least 3 characters
+      </small>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="room-actions">
+    @if (showCreateButton()) {
+      <p-button
+        label="Create New Room"
+        icon="pi pi-plus"
+        (onClick)="onCreateRoom()"
+        [disabled]="!canCreate()"
+        [loading]="isLoading()"
+        class="create-button"
+        styleClass="p-button-primary"
+        aria-label="Create a new whiteboard room"
+      />
+    }
+
+    <p-button
+      label="Join Room"
+      icon="pi pi-sign-in"
+      (onClick)="onJoinRoom()"
+      [disabled]="!canJoin()"
+      [loading]="isLoading()"
+      class="join-button"
+      styleClass="p-button-secondary"
+      aria-label="Join the specified room"
+    />
+  </div>
+</div>
+

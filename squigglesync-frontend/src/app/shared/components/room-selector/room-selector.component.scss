@@ -1,0 +1,135 @@
+/**
+ * RoomSelectorComponent Styles
+ * 
+ * Follows UI/UX best practices:
+ * - Clear visual hierarchy
+ * - Accessible color contrast (WCAG AA)
+ * - Responsive design with mobile-first approach
+ * - Touch-friendly targets (min 44x44px)
+ * - Consistent spacing using relative units
+ */
+
+.room-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.room-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.room-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--p-surface-900);
+  margin-bottom: 0.25rem;
+  
+  // Ensure sufficient contrast
+  @media (prefers-contrast: high) {
+    color: var(--p-surface-950);
+  }
+}
+
+.room-input {
+  width: 100%;
+  min-height: 2.75rem; // Touch-friendly target
+  
+  // Focus state for accessibility
+  &:focus {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+  
+  // Error state
+  &[aria-invalid="true"] {
+    border-color: var(--p-red-500);
+  }
+}
+
+.error-hint {
+  color: var(--p-red-600);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  
+  // Ensure sufficient contrast
+  @media (prefers-contrast: high) {
+    color: var(--p-red-700);
+  }
+}
+
+.room-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  
+  // Stack buttons vertically on mobile, horizontally on larger screens
+  @media (min-width: 640px) {
+    flex-direction: row;
+    
+    .create-button,
+    .join-button {
+      flex: 1;
+    }
+  }
+}
+
+.create-button,
+.join-button {
+  min-height: 2.75rem; // Touch-friendly target (44px)
+  width: 100%;
+  
+  @media (min-width: 640px) {
+    width: auto;
+  }
+  
+  // Ensure buttons are accessible
+  &:focus {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+  
+  // Disabled state
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .room-selector-container {
+    gap: 1.25rem;
+  }
+  
+  .room-actions {
+    gap: 0.5rem;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .room-input {
+    border-width: 2px;
+  }
+  
+  .create-button,
+  .join-button {
+    border-width: 2px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .room-selector-container * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
