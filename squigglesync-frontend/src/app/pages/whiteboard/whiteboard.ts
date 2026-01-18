@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, effect, viewChild, ElementRef, afterNextRender } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, effect, viewChild, ElementRef, afterNextRender, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 
 // PrimeNG Components
 import { Button } from 'primeng/button';
@@ -12,6 +13,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Badge } from 'primeng/badge';
 import { Tooltip } from 'primeng/tooltip';
 import { Dialog } from 'primeng/dialog';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 // Services & Utils
 import { CanvasService } from '../../core/services/canvas.service';
@@ -41,6 +44,7 @@ type TagIcon = 'pi pi-check-circle' | 'pi pi-times-circle';
     Badge,
     Tooltip,
     Dialog,
+    Toast,
     ToolbarComponent
   ],
   templateUrl: './whiteboard.html',
@@ -60,6 +64,7 @@ export class Whiteboard {
   private wsService = inject(WebSocketService);
   private userStore = inject(UserStore);
   private connectionStore = inject(ConnectionStore);
+  private messageService = inject(MessageService);
 
   // ============================================================================
   // TEMPLATE REFERENCES
@@ -159,6 +164,11 @@ export class Whiteboard {
   });
 
   // ============================================================================
+  // SUBSCRIPTIONS
+  // ============================================================================
+  private subscriptions = new Subscription();
+
+  // ============================================================================
   // CONSTRUCTOR & INITIALIZATION
   // ============================================================================
   constructor() {
@@ -168,40 +178,29 @@ export class Whiteboard {
     });
 
     this.wsService.connect();
+    this.setupWebSocketSubscriptions();
+    this.setupConnectionStatusSync();
+    this.setupRoomJoinEffect();
+    // React to events changes and re-render canvas
+    this.setupCanvasRenderEffect();
 
-    this.wsService.roomJoined$.subscribe((message: RoomJoinedMessage) => {
-      this.eventService.processMessage(message);
-    })
+    // Update custom cursor visibility based on selected tool
+    effect(() => {
+      const tool = this.selectedTool();
+      this.showCustomCursor.set(tool === 'eraser');
+    });
 
-    this.wsService.events$.subscribe((message: EventMessage) => {
-      this.eventService.processMessage(message);
-    })
-
-      // React to events changes and re-render canvas
-      effect(() => {
-        const events = this.whiteboardStore.sortedEvents();
-        if (this.canvasService.isReady() && events.length > 0) {
-          this.canvasService.renderAllEvents(events);
-        }
+    // Handle window resize
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', () => {
+        this.updateCanvasSize();
       });
 
-      // Update custom cursor visibility based on selected tool
-      effect(() => {
-        const tool = this.selectedTool();
-        this.showCustomCursor.set(tool === 'eraser');
+      // Track mouse movement for custom cursor
+      window.addEventListener('mousemove', (event: MouseEvent) => {
+        this.updateCustomCursorPosition(event);
       });
-
-      // Handle window resize
-      if (typeof window !== 'undefined') {
-        window.addEventListener('resize', () => {
-          this.updateCanvasSize();
-        });
-
-        // Track mouse movement for custom cursor
-        window.addEventListener('mousemove', (event: MouseEvent) => {
-          this.updateCustomCursorPosition(event);
-        });
-      }
+    }
 
     // Handle route param changes (room ID)
     effect(() => {
@@ -222,7 +221,7 @@ export class Whiteboard {
           const storedName = window.localStorage.getItem(`userName_${id}`);
           if (storedName) {
             this.userName.set(storedName);
-                    // TODO Phase 5: Set user via UserStore
+            // TODO Phase 5: Set user via UserStore
             this.isConnected.set(true);
           } else {
             this.showNameModal.set(true);
@@ -233,8 +232,133 @@ export class Whiteboard {
         this.showNameModal.set(true);
       }
     });
+  }
 
-    // Join room when connected
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+
+    // Cleanup event listeners
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.updateCanvasSize.bind(this));
+      window.removeEventListener('mousemove', this.updateCustomCursorPosition.bind(this));
+    }
+    
+  }
+
+  // ============================================================================
+  // WEBSOCKET SETUP
+  // ============================================================================
+
+  /**
+   * Setup WebSocket message subscriptions
+   * 
+   * WHY THIS MATTERS:
+   * - Centralizes all WebSocket subscriptions
+   * - Makes cleanup easier (all in one place)
+   * - Handles all message types (room joined, events, errors, connection status)
+   * - Updates stores and UI reactively
+   * 
+   * WHAT IT DOES:
+   * 1. Subscribes to ROOM_JOINED messages → Processes state snapshot
+   * 2. Subscribes to EVENT messages → Processes real-time events
+   * 3. Subscribes to ERROR messages → Shows error to user
+   * 4. Subscribes to CONNECTED messages → Updates connection status
+   */
+  private setupWebSocketSubscriptions(): void {
+    this.subscriptions.add(
+      this.wsService.roomJoined$.subscribe((message: RoomJoinedMessage) => {
+        console.log('Room joined, received state snapshot');
+        this.eventService.processMessage(message);
+      })
+    );
+
+    this.subscriptions.add(
+      this.wsService.events$.subscribe((message: EventMessage) => {
+        console.log('Received event:', message.payload.type);
+        this.eventService.processMessage(message);
+      })
+    );
+
+    this.subscriptions.add(
+      this.wsService.errors$.subscribe((error) => {
+        console.error('WebSocket error:', error.error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Connection Error',
+          detail: error.error || 'An error occurred while connecting to the server',
+          life: 5000
+        });
+      })
+    );
+
+    this.subscriptions.add(
+      this.wsService.connected$.subscribe((connected) => {
+        console.log('WebSocket connected:', connected);
+        if (connected) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Connected',
+            detail: 'Successfully connected to the server',
+            life: 3000
+          });
+        }
+      })
+    );
+  }
+
+  private setupConnectionStatusSync(): void {
+    let previousConnected = false;
+    let previousStatus: 'connected' | 'disconnected' | 'connecting' = 'disconnected';
+
+    effect(() => {
+      const connected = this.connectionStore.isConnected();
+      const status = this.connectionStore.connectionStatus();
+      const error = this.connectionStore.error();
+
+      // Show notification when connection status changes
+      if (previousStatus !== status) {
+        if (status === 'disconnected' && previousConnected) {
+          // Connection lost
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Disconnected',
+            detail: 'Connection to server lost. Attempting to reconnect...',
+            life: 5000
+          });
+        } else if (status === 'connecting' && !previousConnected) {
+          // Reconnecting
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Reconnecting',
+            detail: 'Attempting to reconnect to server...',
+            life: 3000
+          });
+        }
+      }
+
+      // Show error notification if there's an error
+      if (error && error !== null) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Connection Error',
+          detail: error,
+          life: 5000
+        });
+        // Clear error after showing notification
+        this.connectionStore.clearError();
+      }
+
+      this.isConnected.set(connected);
+
+      const count = this.whiteboardStore.userCount();
+      this.userCount.set(count);
+
+      previousConnected = connected;
+      previousStatus = status;
+    });
+  }
+
+  private setupRoomJoinEffect(): void {
     effect(() => {
       const isConnected = this.connectionStore.isConnected();
       const roomId = this.whiteboardStore.currentRoom();
@@ -242,6 +366,23 @@ export class Whiteboard {
 
       if (isConnected && roomId && userId) {
         this.wsService.joinRoom(roomId, userId);
+      } else {
+        if (!isConnected) console.log('Cannot join: WebSocket not connected');
+        if (!roomId) console.log('Cannot join: No room ID');
+        if (!userId) console.log('Cannot join: No user ID');
+      }
+    });
+  }
+
+  private setupCanvasRenderEffect(): void {
+    effect(() => {
+      const events = this.whiteboardStore.sortedEvents();
+      const canvasReady = this.canvasService.isReady();
+
+      if (canvasReady && events.length > 0) {
+        this.canvasService.renderAllEvents(events);
+      } else if (canvasReady && events.length === 0) {
+        this.canvasService.clear();
       }
     });
   }

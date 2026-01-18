@@ -126,4 +126,17 @@ export class ConnectionStore {
     this._connectionStatus.set('disconnected');
     this._isConnected.set(false);
   }
+
+  /**
+   * Clear the error message
+   * 
+   * Called after an error has been displayed to the user.
+   * 
+   * Example:
+   * clearError()
+   * → Clears the error signal
+   */
+  clearError(): void {
+    this._error.set(null);
+  }
 }

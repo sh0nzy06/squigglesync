@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { v4 as uuidv4 } from 'uuid';
 /**
  * UserStore
  * 
@@ -72,6 +73,6 @@ export class UserStore {
    * @returns A generated user ID string
    */
   generateUserId(): string {
-    return `user-${Math.random().toString(36).substring(2, 11)}`;
+    return `user-${uuidv4()}`;
   }
 }
